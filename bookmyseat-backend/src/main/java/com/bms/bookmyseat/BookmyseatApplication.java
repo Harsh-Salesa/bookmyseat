@@ -1,13 +1,13 @@
-package com.bms.bookmyticket;
+package com.bms.bookmyseat;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class BookmyticketApplication {
+public class BookmyseatApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(BookmyticketApplication.class, args);
+		SpringApplication.run(BookmyseatApplication.class, args);
 	}
 
 }

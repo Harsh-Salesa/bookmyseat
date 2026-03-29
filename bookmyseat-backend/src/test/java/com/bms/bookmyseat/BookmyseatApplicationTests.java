@@ -1,10 +1,10 @@
-package com.bms.bookmyticket;
+package com.bms.bookmyseat;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class BookmyticketApplicationTests {
+class BookmyseatApplicationTests {
 
 	@Test
 	void contextLoads() {
