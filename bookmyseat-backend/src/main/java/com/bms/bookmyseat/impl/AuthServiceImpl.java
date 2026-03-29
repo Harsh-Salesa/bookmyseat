@@ -9,11 +9,13 @@ import com.bms.bookmyseat.repository.UserRepository;
 import com.bms.bookmyseat.security.JwtUtil;
 import com.bms.bookmyseat.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
@@ -24,6 +26,7 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponse register(RegisterRequest request) {
 
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            log.warn("Registration failed - Email already exists: {}", request.getEmail());
             throw new UserAlreadyExistsException("Email already exists");
         }
 
@@ -35,6 +38,7 @@ public class AuthServiceImpl implements AuthService {
                 .build();
 
         userRepository.save(user);
+        log.warn("Registration failed - Email already exists: {}", request.getEmail());
 
         return AuthResponse.builder()
                 .token(jwtUtil.generateToken(user.getEmail()))
@@ -45,14 +49,15 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponse login(LoginRequest request) {
 
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new InvalidCredentialsException("Invalid email"));
-        System.out.println("RAW: " + request.getPassword());
-        System.out.println("HASH: " + user.getPassword());
-        System.out.println("MATCH: " + passwordEncoder.matches(request.getPassword(), user.getPassword()));
+                .orElseThrow(() -> {
+                    log.warn("Login failed - User not found: {}", request.getEmail());
+                    return new InvalidCredentialsException("Invalid email");
+                });
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            log.warn("Login failed - Invalid password for email: {}", request.getEmail());
             throw new InvalidCredentialsException("Invalid password");
         }
-
+        log.info("User logged in successfully: {}", user.getEmail());
         return AuthResponse.builder()
                 .token(jwtUtil.generateToken(user.getEmail()))
                 .build();
