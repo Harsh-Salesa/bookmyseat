@@ -1,13 +1,19 @@
 package com.bms.bookmyseat.security;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.function.Function;
 
 @Component
 @RequiredArgsConstructor
@@ -17,7 +23,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        return request.getServletPath().startsWith("/api/v1/auth");
+        return request.getRequestURI().contains("/api/v1/auth");
     }
 
     @Override
@@ -28,24 +34,28 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String authHeader = request.getHeader("Authorization");
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
 
-        String token = authHeader.substring(7);
+            String token = authHeader.substring(7);
 
-        try {
-            String email = jwtUtil.extractEmail(token);
+            try {
+                String email = jwtUtil.extractEmail(token);
+                String role = jwtUtil.extractClaim(token, claims -> claims.get("role", String.class));
 
-            UsernamePasswordAuthenticationToken auth =
-                    new UsernamePasswordAuthenticationToken(email, null, null);
+                System.out.println("EMAIL: " + email);
+                System.out.println("ROLE: " + role);
 
-            SecurityContextHolder.getContext().setAuthentication(auth);
+                List<GrantedAuthority> authorities =
+                        List.of(new SimpleGrantedAuthority("ROLE_" + role));
 
-        } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-           return;
+                UsernamePasswordAuthenticationToken auth =
+                        new UsernamePasswordAuthenticationToken(email, null, authorities);
+
+                SecurityContextHolder.getContext().setAuthentication(auth); // 🔥 MUST
+
+            } catch (Exception e) {
+                System.out.println("JWT ERROR: " + e.getMessage());
+            }
         }
 
         filterChain.doFilter(request, response);

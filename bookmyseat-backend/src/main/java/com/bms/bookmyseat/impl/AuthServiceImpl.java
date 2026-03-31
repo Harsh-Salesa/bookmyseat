@@ -41,7 +41,7 @@ public class AuthServiceImpl implements AuthService {
         log.warn("Registration failed - Email already exists: {}", request.getEmail());
 
         return AuthResponse.builder()
-                .token(jwtUtil.generateToken(user.getEmail()))
+                .token(jwtUtil.generateToken(user.getEmail(), user.getRole().name()))
                 .build();
     }
 
@@ -59,7 +59,7 @@ public class AuthServiceImpl implements AuthService {
         }
         log.info("User logged in successfully: {}", user.getEmail());
         return AuthResponse.builder()
-                .token(jwtUtil.generateToken(user.getEmail()))
+                .token(jwtUtil.generateToken(user.getEmail(), user.getRole().name()))
                 .build();
     }
 }

@@ -30,4 +30,17 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.badRequest().body(errors);
     }
+    @ExceptionHandler(MovieAlreadyExistsException.class)
+    public ResponseEntity<?> handleMovieExists(MovieAlreadyExistsException ex) {
+        return ResponseEntity.status(409).body(Map.of(
+                "error", ex.getMessage()
+        ));
+
+    }
+    @ExceptionHandler(MovieNotFoundException.class)
+    public ResponseEntity<?> handleMovieNotFound(MovieNotFoundException ex) {
+        return ResponseEntity.status(404).body(Map.of(
+                "error", ex.getMessage()
+        ));
+    }
 }
