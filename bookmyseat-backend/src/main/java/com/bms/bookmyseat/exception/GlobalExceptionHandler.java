@@ -43,4 +43,19 @@ public class GlobalExceptionHandler {
                 "error", ex.getMessage()
         ));
     }
+    @ExceptionHandler(TheaterNotFoundException.class)
+    public ResponseEntity<?> handleTheaterNotFound(TheaterNotFoundException ex) {
+        return ResponseEntity.status(404).body(Map.of(
+                "error", ex.getMessage()
+        ));
+    }
+
+    @ExceptionHandler(TheaterAlreadyExistsException.class)
+    public ResponseEntity<?> handleTheaterExists(TheaterAlreadyExistsException ex) {
+        return ResponseEntity.status(409).body(Map.of(
+                "error", ex.getMessage()
+        ));
+
+    }
+
 }
