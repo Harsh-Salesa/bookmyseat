@@ -20,4 +20,13 @@ public class ShowRequest {
 
     @NotNull(message = "Show time required")
     private LocalTime showTime;
+
+    @NotNull
+    private Double regularPrice;
+
+    @NotNull
+    private Double premiumPrice;
+
+    @NotNull
+    private Double vipPrice;
 }

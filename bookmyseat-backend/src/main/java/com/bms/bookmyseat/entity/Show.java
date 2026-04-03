@@ -31,5 +31,14 @@ public class Show {
     private LocalDate showDate;
 
     private LocalTime showTime;
+
+    @Column(nullable = false)
+    private Double regularPrice;
+
+    @Column(nullable = false)
+    private Double premiumPrice;
+
+    @Column(nullable = false)
+    private Double vipPrice;
 }
 

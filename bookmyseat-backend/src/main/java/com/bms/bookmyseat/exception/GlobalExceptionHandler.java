@@ -71,6 +71,10 @@ public class GlobalExceptionHandler {
                 "error", ex.getMessage()
         ));
     }
+    @ExceptionHandler(SeatNotAvailableException.class)
+    public ResponseEntity<?> handleSeatNotAvailable(SeatNotAvailableException ex) {
+        return ResponseEntity.status(409).body(Map.of("error", ex.getMessage()));
+    }
 
 
 }
