@@ -50,6 +50,7 @@ public class GlobalExceptionHandler {
         ));
     }
 
+
     @ExceptionHandler(TheaterAlreadyExistsException.class)
     public ResponseEntity<?> handleTheaterExists(TheaterAlreadyExistsException ex) {
         return ResponseEntity.status(409).body(Map.of(
@@ -57,5 +58,19 @@ public class GlobalExceptionHandler {
         ));
 
     }
+    @ExceptionHandler(ShowAlreadyExistsException.class)
+    public ResponseEntity<?> handleShowAlreadyExists(ShowAlreadyExistsException ex) {
+        return ResponseEntity.status(409).body(Map.of(
+                "error", ex.getMessage()
+        ));
+    }
+
+    @ExceptionHandler(ShowNotFoundException.class)
+    public ResponseEntity<?> handleShowNotFoundException(ShowNotFoundException ex) {
+        return ResponseEntity.status(404).body(Map.of(
+                "error", ex.getMessage()
+        ));
+    }
+
 
 }

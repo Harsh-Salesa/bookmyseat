@@ -4,6 +4,7 @@ import com.bms.bookmyseat.dto.TheaterRequest;
 import com.bms.bookmyseat.dto.TheaterResponse;
 import com.bms.bookmyseat.entity.Theater;
 import com.bms.bookmyseat.exception.MovieAlreadyExistsException;
+import com.bms.bookmyseat.exception.TheaterAlreadyExistsException;
 import com.bms.bookmyseat.exception.TheaterNotFoundException;
 import com.bms.bookmyseat.repository.TheaterRepository;
 import com.bms.bookmyseat.service.TheaterService;
@@ -29,7 +30,7 @@ public class TheaterServiceImpl implements TheaterService {
         log.info("Adding theater: {}", request.getName());
         if (theaterRepository.existsByName(request.getName())) {
             log.warn("Theater already exists: {}", request.getName());
-            throw new MovieAlreadyExistsException("Theater with this title already exists");
+            throw new TheaterAlreadyExistsException("Theater with this title already exists");
         }
         Theater theater = Theater.builder()
                 .name(request.getName())
