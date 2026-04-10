@@ -75,6 +75,20 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleSeatNotAvailable(SeatNotAvailableException ex) {
         return ResponseEntity.status(409).body(Map.of("error", ex.getMessage()));
     }
+    @ExceptionHandler(BookingNotFoundException.class)
+    public ResponseEntity<?> handleBooking(BookingNotFoundException ex) {
+        return ResponseEntity.status(404).body(Map.of("message", ex.getMessage()));
+    }
 
+    @ExceptionHandler(SeatNotLockedException.class)
+    public ResponseEntity<?> handleSeat(SeatNotLockedException ex) {
+        return ResponseEntity.status(409).body(Map.of("message", ex.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidBookingException.class)
+    public ResponseEntity<?> handleInvalid(InvalidBookingException ex) {
+        return ResponseEntity.status(400).body(Map.of("message", ex.getMessage()));
+    }
 
 }
+

@@ -22,46 +22,65 @@ public class SeatServiceImpl implements SeatService {
     @Override
     public List<SeatResponse> getSeatsByShow(Long showId) {
 
+        log.info("Fetching seats for showId={}", showId);
+
         return seatRepository.findByShowId(showId)
                 .stream()
                 .map(this::map)
                 .toList();
     }
 
-    // 🔥 LOCK SEATS
+    // 🔥 LOCK SEATS (CONCURRENCY SAFE)
     @Override
     @Transactional
     public void lockSeats(List<Long> seatIds) {
 
         log.info("Lock seats request received: {}", seatIds);
-        List<Seat> seats = seatRepository.findAllById(seatIds);
+
+        // 🔥 IMPORTANT CHANGE: DB LEVEL LOCK
+        List<Seat> seats = seatRepository.findSeatsForUpdate(seatIds);
+
+        if (seats.size() != seatIds.size()) {
+            throw new RuntimeException("Some seats not found");
+        }
 
         for (Seat seat : seats) {
 
-                if (seat.getStatus() != Seat.SeatStatus.AVAILABLE) {
-                    log.warn("Seat already booked/locked: {}", seat.getId());
-                    throw new SeatNotAvailableException("Seat already booked or locked");
-                }
+            log.info("Checking seat id={} status={}", seat.getId(), seat.getStatus());
 
-                seat.setStatus(Seat.SeatStatus.LOCKED);
+            if (seat.getStatus() != Seat.SeatStatus.AVAILABLE) {
+                log.warn("Seat already booked/locked: {}", seat.getId());
+                throw new SeatNotAvailableException("Seat already booked or locked");
             }
 
+            seat.setStatus(Seat.SeatStatus.LOCKED);
+        }
 
         seatRepository.saveAll(seats);
 
-        log.info("Seats locked: {}", seatIds);
+        log.info("Seats locked successfully: {}", seatIds);
     }
 
-    // 🔥 BOOK SEATS
+    // 🔥 BOOK SEATS (SAFE)
     @Override
     @Transactional
     public void bookSeats(List<Long> seatIds) {
 
-        List<Seat> seats = seatRepository.findAllById(seatIds);
+        log.info("Booking seats: {}", seatIds);
+
+        // 🔥 IMPORTANT CHANGE: DB LOCK AGAIN
+        List<Seat> seats = seatRepository.findSeatsForUpdate(seatIds);
+
+        if (seats.size() != seatIds.size()) {
+            throw new RuntimeException("Some seats not found");
+        }
 
         for (Seat seat : seats) {
 
+            log.info("Validating seat id={} status={}", seat.getId(), seat.getStatus());
+
             if (seat.getStatus() != Seat.SeatStatus.LOCKED) {
+                log.warn("Seat not locked: {}", seat.getId());
                 throw new RuntimeException("Seat not locked");
             }
 
@@ -70,7 +89,7 @@ public class SeatServiceImpl implements SeatService {
 
         seatRepository.saveAll(seats);
 
-        log.info("Seats booked: {}", seatIds);
+        log.info("Seats booked successfully: {}", seatIds);
     }
 
     private SeatResponse map(Seat seat) {

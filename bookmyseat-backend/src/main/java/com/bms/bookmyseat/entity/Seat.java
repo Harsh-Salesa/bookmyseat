@@ -32,6 +32,7 @@ public class Seat {
 
     @Version  // 💣 concurrency control
     private Long version;
+
     private double price;
 
     public enum SeatType {

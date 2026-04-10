@@ -38,7 +38,7 @@ public class AuthServiceImpl implements AuthService {
                 .build();
 
         userRepository.save(user);
-        log.warn("Registration failed - Email already exists: {}", request.getEmail());
+        log.info("Registration successful {}", request.getEmail());
 
         return AuthResponse.builder()
                 .token(jwtUtil.generateToken(user.getEmail(), user.getRole().name()))
